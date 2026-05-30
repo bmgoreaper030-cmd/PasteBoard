@@ -52,5 +52,10 @@
             android:exported="false"
             android:foregroundServiceType="specialUse"/>
 
+        <service
+            android:name=".RecordingOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"/>
+
     </application>
 </manifest>

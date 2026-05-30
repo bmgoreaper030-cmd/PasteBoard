@@ -41,7 +41,10 @@ class TapMateActivity : AppCompatActivity() {
         refreshRecordingList()
 
         // If launched from float record button
-        if (intent.getStringExtra("action") == "record") {
+        if (intent?.getStringExtra("action") == "save") {
+            if (TapRecorder.currentEvents.isNotEmpty()) stopRecording()
+        }
+        if (intent?.getStringExtra("action") == "record") {
             startRecording()
         }
     }
@@ -145,6 +148,12 @@ class TapMateActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
+        startService(android.content.Intent(this, RecordingOverlayService::class.java))
+        btnRecord.text = "⏹ Stop Recording"
+        tvStatus.text = "Recording via overlay — tap notification to stop"
+        isRecording = true
+        return
+        // old code below:
         isRecording = true
         TapRecorder.startRecording()
         btnRecord.text = "⏹ Stop Recording"

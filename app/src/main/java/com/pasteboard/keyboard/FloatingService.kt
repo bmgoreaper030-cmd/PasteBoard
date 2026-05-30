@@ -69,6 +69,16 @@ class FloatingService : Service() {
         layout.addView(playBtn)
         layout.addView(recordBtn)
 
+        val closeBtn = Button(this).apply {
+            text = "✕"
+            textSize = 14f
+            setBackgroundColor(0xFF6B7280.toInt())
+            setTextColor(0xFFFFFFFF.toInt())
+            layoutParams = LinearLayout.LayoutParams(148, 80).apply { topMargin = 4 }
+        }
+        layout.addView(closeBtn)
+        closeBtn.setOnClickListener { stopSelf() }
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
