@@ -2,15 +2,13 @@ package com.pasteboard.keyboard
 
 import android.inputmethodservice.InputMethodService
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.ImageButton
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 
 class PasteBoardIME : InputMethodService() {
 
     private var isDark = false
-    private var isShuffle = false
 
     override fun onCreateInputView(): View {
         ScriptManager.load(this)
@@ -19,7 +17,7 @@ class PasteBoardIME : InputMethodService() {
         return view
     }
 
-    override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
+    override fun onStartInput(attribute: android.view.inputmethod.EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         ScriptManager.load(this)
     }
@@ -27,58 +25,35 @@ class PasteBoardIME : InputMethodService() {
     private fun setupKeyboard(view: View) {
         updateFileLabel(view)
 
-        // Paste line button
-        view.findViewById<View>(R.id.btnPaste).setOnClickListener {
-            val line = ScriptManager.consumeLine(this, isShuffle)
+        view.findViewById<Button>(R.id.btnPaste).setOnClickListener {
+            val line = ScriptManager.consumeLine(this, shuffle = true)
             if (line != null) {
                 currentInputConnection?.commitText(line, 1)
                 updateFileLabel(view)
             } else {
-                Toast.makeText(this, "No script loaded — open PasteBoard app to import a .txt file", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Open PasteBoard app and import a .txt file", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Shuffle toggle
-        val btnShuffle = view.findViewById<ImageButton>(R.id.btnShuffle)
-        btnShuffle.setOnClickListener {
-            isShuffle = !isShuffle
-            btnShuffle.setImageResource(
-                if (isShuffle) R.drawable.ic_shuffle_on else R.drawable.ic_shuffle_off
-            )
-            btnShuffle.alpha = if (isShuffle) 1f else 0.5f
-        }
-
-        // Theme toggle
-        val btnTheme = view.findViewById<ImageButton>(R.id.btnTheme)
-        btnTheme.setOnClickListener {
+        view.findViewById<Button>(R.id.btnTheme).setOnClickListener {
             isDark = !isDark
             applyTheme(view)
         }
 
-        // Cycle file
-        view.findViewById<ImageButton>(R.id.btnNextFile).setOnClickListener {
-            ScriptManager.cycleToNext(this)
-            updateFileLabel(view)
-        }
-
-        // Delete
-        view.findViewById<View>(R.id.btnDelete).setOnClickListener {
+        view.findViewById<Button>(R.id.btnDelete).setOnClickListener {
             currentInputConnection?.deleteSurroundingText(1, 0)
         }
 
-        // Space
-        view.findViewById<View>(R.id.btnSpace).setOnClickListener {
+        view.findViewById<Button>(R.id.btnSpace).setOnClickListener {
             currentInputConnection?.commitText(" ", 1)
         }
 
-        // Return
-        view.findViewById<View>(R.id.btnReturn).setOnClickListener {
+        view.findViewById<Button>(R.id.btnReturn).setOnClickListener {
             currentInputConnection?.commitText("\n", 1)
         }
 
-        // Switch keyboard
-        view.findViewById<View>(R.id.btnSwitch).setOnClickListener {
-            switchToNextInputMethod(false)
+        view.findViewById<Button>(R.id.btnSwitch).setOnClickListener {
+            switchToNextInputMode(false)
         }
 
         applyTheme(view)
@@ -94,14 +69,8 @@ class PasteBoardIME : InputMethodService() {
 
     private fun applyTheme(view: View) {
         val bg = if (isDark) 0xFF1E1E1E.toInt() else 0xFFD1D5DB.toInt()
-        val keyBg = if (isDark) 0xFF3A3A3A.toInt() else 0xFFF3F4F6.toInt()
         view.setBackgroundColor(bg)
-
-        val keyIds = listOf(
-            R.id.btnPaste, R.id.btnSpace, R.id.btnReturn, R.id.btnDelete
-        )
-        keyIds.forEach { id ->
-            view.findViewById<View>(id)?.setBackgroundColor(keyBg)
-        }
+        val themeBtn = view.findViewById<Button>(R.id.btnTheme)
+        themeBtn.text = if (isDark) "☀️" else "🌙"
     }
 }
