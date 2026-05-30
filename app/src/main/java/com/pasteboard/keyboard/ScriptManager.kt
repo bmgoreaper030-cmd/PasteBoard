@@ -9,6 +9,7 @@ data class ScriptFile(
     val id: String,
     val name: String,
     val lines: List<String>,
+    var shuffledIndices: List<Int> = emptyList(),
     var currentIndex: Int = 0
 )
 
@@ -38,11 +39,18 @@ object ScriptManager {
             val obj = arr.getJSONObject(i)
             val linesArr = obj.getJSONArray("lines")
             val lines = (0 until linesArr.length()).map { linesArr.getString(it) }
+            val indicesArr = obj.optJSONArray("shuffledIndices")
+            val indices = if (indicesArr != null) {
+                (0 until indicesArr.length()).map { indicesArr.getInt(it) }
+            } else {
+                emptyList()
+            }
             _files.add(
                 ScriptFile(
                     id = obj.getString("id"),
                     name = obj.getString("name"),
                     lines = lines,
+                    shuffledIndices = indices,
                     currentIndex = obj.optInt("currentIndex", 0)
                 )
             )
@@ -60,6 +68,9 @@ object ScriptManager {
             val linesArr = JSONArray()
             file.lines.forEach { linesArr.put(it) }
             obj.put("lines", linesArr)
+            val indicesArr = JSONArray()
+            file.shuffledIndices.forEach { indicesArr.put(it) }
+            obj.put("shuffledIndices", indicesArr)
             arr.put(obj)
         }
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -77,10 +88,13 @@ object ScriptManager {
             .filter { it.isNotEmpty() }
         if (lines.isEmpty()) return
 
+        val shuffled = (lines.indices).toMutableList().also { it.shuffle() }
         val file = ScriptFile(
             id = System.currentTimeMillis().toString(),
             name = name.removeSuffix(".txt"),
-            lines = lines
+            lines = lines,
+            shuffledIndices = shuffled,
+            currentIndex = 0
         )
         _files.add(file)
         if (activeFileId == null) activeFileId = file.id
@@ -111,14 +125,22 @@ object ScriptManager {
         val file = _files[idx]
         if (file.lines.isEmpty()) return null
 
-        val line = if (shuffle) {
-            file.lines.random()
+        return if (shuffle) {
+            // If no shuffled deck or deck exhausted, reshuffle
+            if (file.shuffledIndices.isEmpty() || file.currentIndex >= file.shuffledIndices.size) {
+                val newDeck = (file.lines.indices).toMutableList().also { it.shuffle() }
+                _files[idx] = file.copy(shuffledIndices = newDeck, currentIndex = 0)
+            }
+            val updated = _files[idx]
+            val line = updated.lines[updated.shuffledIndices[updated.currentIndex]]
+            _files[idx] = updated.copy(currentIndex = updated.currentIndex + 1)
+            save(context)
+            line
         } else {
             val line = file.lines[file.currentIndex % file.lines.size]
             _files[idx] = file.copy(currentIndex = (file.currentIndex + 1) % file.lines.size)
+            save(context)
             line
         }
-        save(context)
-        return line
     }
 }
