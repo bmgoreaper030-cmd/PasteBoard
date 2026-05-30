@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView android:text="TapMate Recorder" android:textSize="22sp" android:textStyle="bold"
+            android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp"/>
+
+        <TextView android:id="@+id/tvStatus" android:text="Ready"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp" android:layout_marginBottom="4dp"/>
+
+        <TextView android:id="@+id/tvCountdown" android:text=""
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="#FF3B82F6"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Record -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRecord"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="⏺ Start Recording" android:layout_marginBottom="8dp"/>
+
+        <!-- Recordings list -->
+        <TextView android:text="Saved Recordings (long press to delete)"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="12sp" android:layout_marginBottom="4dp"/>
+
+        <ListView android:id="@+id/recordingList"
+            android:layout_width="match_parent" android:layout_height="160dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Speed -->
+        <TextView android:id="@+id/tvSpeed" android:text="Speed: 1.0x"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <SeekBar android:id="@+id/seekSpeed"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Loops -->
+        <TextView android:id="@+id/tvLoops" android:text="Loops: ∞ infinite"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <SeekBar android:id="@+id/seekLoops"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Delay -->
+        <TextView android:id="@+id/tvDelay" android:text="Delay: 0ms – 0ms per tap"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <SeekBar android:id="@+id/seekDelayMin"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <SeekBar android:id="@+id/seekDelayMax"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <Switch android:id="@+id/switchShuffleDelay"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Shuffle delay (random between min/max)"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Action buttons -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="8dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPlay"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="▶ Play" android:layout_marginEnd="8dp"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStop"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="⏹ Stop"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFloat"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="🔲 Show Floating Button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+    </LinearLayout>
+</ScrollView>

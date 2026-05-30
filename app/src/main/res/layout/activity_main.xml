@@ -57,7 +57,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-        </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTapMate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="🎯 Open TapMate Recorder"/>
+
+</LinearLayout>
 
         <!-- File list -->
         <androidx.recyclerview.widget.RecyclerView
@@ -84,6 +91,13 @@
             android:layout_marginTop="8dp"
             android:text="Enable Keyboard in Settings"/>
 
-    </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTapMate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="🎯 Open TapMate Recorder"/>
+
+</LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

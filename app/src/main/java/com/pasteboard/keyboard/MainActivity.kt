@@ -69,6 +69,10 @@ class MainActivity : AppCompatActivity() {
             filePicker.launch("text/plain")
         }
 
+        binding.btnTapMate.setOnClickListener {
+            startActivity(android.content.Intent(this, TapMateActivity::class.java))
+        }
+
         binding.btnEnableKeyboard.setOnClickListener {
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         }
@@ -97,3 +101,4 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.visibility = if (isEmpty) android.view.View.GONE else android.view.View.VISIBLE
     }
 }
+// Add to bottom of setupButtons() — handled via layout button
