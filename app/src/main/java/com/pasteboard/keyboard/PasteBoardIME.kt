@@ -53,7 +53,7 @@ class PasteBoardIME : InputMethodService() {
         }
 
         view.findViewById<Button>(R.id.btnSwitch).setOnClickListener {
-            switchToNextInputMode(false)
+            switchInputMethod(null)
         }
 
         applyTheme(view)
