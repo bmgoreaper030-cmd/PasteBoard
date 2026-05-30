@@ -3,18 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="PasteBoard"
-            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+            app:title="PasteBoard"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
@@ -24,7 +21,6 @@
         android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Empty state -->
         <LinearLayout
             android:id="@+id/emptyState"
             android:layout_width="match_parent"
@@ -49,7 +45,7 @@
                 android:layout_height="wrap_content"/>
 
             <TextView
-                android:text="Import a .txt file to get started.\nOne line = one paste."
+                android:text="Import a .txt file to get started."
                 android:textSize="14sp"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
@@ -57,16 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnTapMate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="🎯 Open TapMate Recorder"/>
+        </LinearLayout>
 
-</LinearLayout>
-
-        <!-- File list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
@@ -74,7 +62,6 @@
             android:layout_weight="1"
             android:visibility="gone"/>
 
-        <!-- Bottom buttons -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnImport"
             android:layout_width="match_parent"
@@ -92,12 +79,13 @@
             android:text="Enable Keyboard in Settings"/>
 
         <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnTapMate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="🎯 Open TapMate Recorder"/>
+            android:id="@+id/btnTapMate"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="🎯 Open TapMate Recorder"/>
 
-</LinearLayout>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
