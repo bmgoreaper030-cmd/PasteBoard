@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="4dp"
+    android:background="#FFD1D5DB">
+
+    <!-- Top bar: file name + controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="4dp">
+
+        <TextView
+            android:id="@+id/tvFileName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="No script loaded"
+            android:textSize="11sp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tvLineCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:layout_marginEnd="8dp"/>
+
+        <ImageButton
+            android:id="@+id/btnShuffle"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_shuffle_off"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:alpha="0.5"
+            android:contentDescription="Shuffle"/>
+
+        <ImageButton
+            android:id="@+id/btnTheme"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_day"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Theme"/>
+
+        <ImageButton
+            android:id="@+id/btnNextFile"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_media_next"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Next file"/>
+
+    </LinearLayout>
+
+    <!-- Row 1: blank keys -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+        <include layout="@layout/blank_key_row_10"/>
+    </LinearLayout>
+
+    <!-- Row 2: blank keys -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:layout_marginTop="4dp">
+        <include layout="@layout/blank_key_row_9"/>
+    </LinearLayout>
+
+    <!-- Row 3: blank keys + delete -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.5"/>
+
+        <include layout="@layout/blank_key_row_7"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:layout_marginStart="4dp"
+            android:text="⌫"
+            android:textSize="16sp"
+            android:background="@drawable/key_bg_special"/>
+    </LinearLayout>
+
+    <!-- Bottom row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp">
+
+        <!-- Switch keyboard -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSwitch"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:text="🌐"
+            android:textSize="18sp"
+            android:background="@drawable/key_bg_special"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- PASTE button (accent) -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnPaste"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="Paste Line"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:background="@drawable/key_bg_accent"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- Space -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSpace"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="space"
+            android:textSize="12sp"
+            android:background="@drawable/key_bg_normal"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- Return -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnReturn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:text="↵"
+            android:textSize="16sp"
+            android:background="@drawable/key_bg_special"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.PasteBoard" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">#FF3B82F6</item>
+        <item name="colorPrimaryVariant">#FF2563EB</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">#FF3B82F6</item>
+        <item name="colorSecondaryVariant">#FF1D4ED8</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+</resources>
