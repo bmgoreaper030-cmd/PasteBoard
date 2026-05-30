@@ -27,7 +27,6 @@ class TapMateActivity : AppCompatActivity() {
     private lateinit var tvDelay: TextView
     private lateinit var switchShuffleDelay: Switch
     private lateinit var recordingList: ListView
-    private lateinit var recordingAdapter: ArrayAdapter<String>
 
     private var selectedRecordingId: String? = null
     private var isRecording = false
@@ -39,7 +38,18 @@ class TapMateActivity : AppCompatActivity() {
         TapRecorder.load(this)
         bindViews()
         setupControls()
-        updateRecordingList()
+        refreshRecordingList()
+
+        // If launched from float record button
+        if (intent.getStringExtra("action") == "record") {
+            startRecording()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        TapRecorder.load(this)
+        refreshRecordingList()
     }
 
     private fun bindViews() {
@@ -61,51 +71,35 @@ class TapMateActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        // Speed (0.5x to 5x, default 1x)
         seekSpeed.max = 90
         seekSpeed.progress = 10
         updateSpeedLabel()
-        seekSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { updateSpeedLabel() }
-            override fun onStartTrackingTouch(s: SeekBar?) {}
-            override fun onStopTrackingTouch(s: SeekBar?) {}
-        })
+        seekSpeed.setOnSeekBarChangeListener(simpleSeekListener { updateSpeedLabel() })
 
-        // Loops (0 = infinite, 1-100)
         seekLoops.max = 100
         seekLoops.progress = 0
         updateLoopsLabel()
-        seekLoops.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { updateLoopsLabel() }
-            override fun onStartTrackingTouch(s: SeekBar?) {}
-            override fun onStopTrackingTouch(s: SeekBar?) {}
-        })
+        seekLoops.setOnSeekBarChangeListener(simpleSeekListener { updateLoopsLabel() })
 
-        // Delay min/max (0-5000ms)
         seekDelayMin.max = 5000
         seekDelayMax.max = 5000
         updateDelayLabel()
-        val delayListener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { updateDelayLabel() }
-            override fun onStartTrackingTouch(s: SeekBar?) {}
-            override fun onStopTrackingTouch(s: SeekBar?) {}
-        }
-        seekDelayMin.setOnSeekBarChangeListener(delayListener)
-        seekDelayMax.setOnSeekBarChangeListener(delayListener)
+        seekDelayMin.setOnSeekBarChangeListener(simpleSeekListener { updateDelayLabel() })
+        seekDelayMax.setOnSeekBarChangeListener(simpleSeekListener { updateDelayLabel() })
 
-        // Record button — overlay the whole screen to capture touches
         btnRecord.setOnClickListener {
             if (!isRecording) startRecording() else stopRecording()
         }
 
         btnPlay.setOnClickListener {
-            val id = selectedRecordingId ?: run {
-                toast("Select a recording first"); return@setOnClickListener
+            val id = selectedRecordingId ?: TapRecorder.recordings.lastOrNull()?.id ?: run {
+                toast("No recording selected"); return@setOnClickListener
             }
             if (TapAccessibilityService.instance == null) {
                 promptAccessibility(); return@setOnClickListener
             }
             applySettings()
+            FloatingService.lastRecordingId = id
             startCountdownAndPlay(id)
         }
 
@@ -114,21 +108,26 @@ class TapMateActivity : AppCompatActivity() {
             countdown?.cancel()
             tvStatus.text = "Stopped"
             tvCountdown.text = ""
+            FloatingService.updateButtons()
         }
 
         btnFloat.setOnClickListener {
             if (!Settings.canDrawOverlays(this)) {
                 startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:$packageName")))
+                toast("Enable overlay permission then tap again")
             } else {
                 startService(Intent(this, FloatingService::class.java))
-                finish()
+                toast("Floating buttons active!")
             }
         }
 
         recordingList.setOnItemClickListener { _, _, pos, _ ->
-            selectedRecordingId = TapRecorder.recordings[pos].id
-            tvStatus.text = "Selected: ${TapRecorder.recordings[pos].name}"
+            if (pos < TapRecorder.recordings.size) {
+                selectedRecordingId = TapRecorder.recordings[pos].id
+                FloatingService.lastRecordingId = selectedRecordingId
+                tvStatus.text = "Selected: ${TapRecorder.recordings[pos].name}"
+            }
         }
 
         recordingList.setOnItemLongClickListener { _, _, pos, _ ->
@@ -137,7 +136,7 @@ class TapMateActivity : AppCompatActivity() {
                 .setTitle("Delete \"${rec.name}\"?")
                 .setPositiveButton("Delete") { _, _ ->
                     TapRecorder.deleteRecording(this, rec.id)
-                    updateRecordingList()
+                    refreshRecordingList()
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
@@ -149,12 +148,11 @@ class TapMateActivity : AppCompatActivity() {
         isRecording = true
         TapRecorder.startRecording()
         btnRecord.text = "⏹ Stop Recording"
-        tvStatus.text = "Recording... tap anywhere on screen"
-
-        // Transparent overlay to capture taps
+        tvStatus.text = "Recording taps..."
         window.decorView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 TapRecorder.addEvent(event.rawX, event.rawY)
+                tvStatus.text = "Recording... ${TapRecorder.currentEvents.size} taps"
             }
             false
         }
@@ -164,7 +162,9 @@ class TapMateActivity : AppCompatActivity() {
         isRecording = false
         window.decorView.setOnTouchListener(null)
         btnRecord.text = "⏺ Start Recording"
-
+        if (TapRecorder.currentEvents.isEmpty()) {
+            tvStatus.text = "No taps recorded"; return
+        }
         val input = EditText(this).apply { hint = "Recording name" }
         AlertDialog.Builder(this)
             .setTitle("Save Recording")
@@ -172,31 +172,24 @@ class TapMateActivity : AppCompatActivity() {
             .setPositiveButton("Save") { _, _ ->
                 val name = input.text.toString().ifEmpty { "Recording ${TapRecorder.recordings.size + 1}" }
                 TapRecorder.stopRecording(this, name)
-                updateRecordingList()
-                tvStatus.text = "Saved!"
+                refreshRecordingList()
+                tvStatus.text = "Saved: $name"
             }
             .setNegativeButton("Discard") { _, _ ->
                 TapRecorder.currentEvents.clear()
-                TapRecorder.isRecording = false
+                tvStatus.text = "Discarded"
             }
             .show()
     }
 
     private fun startCountdownAndPlay(id: String) {
-        val seconds = TapAccessibilityService.countdownSeconds
-        if (seconds == 0) {
-            TapAccessibilityService.instance?.startPlayback(id)
-            tvStatus.text = "Playing..."
-            return
-        }
-        countdown = object : CountDownTimer(seconds * 1000L, 1000) {
-            override fun onTick(ms: Long) {
-                tvCountdown.text = "Starting in ${ms / 1000 + 1}..."
-            }
+        countdown = object : CountDownTimer(3000L, 1000) {
+            override fun onTick(ms: Long) { tvCountdown.text = "Starting in ${ms / 1000 + 1}..." }
             override fun onFinish() {
                 tvCountdown.text = ""
                 TapAccessibilityService.instance?.startPlayback(id)
-                tvStatus.text = "Playing..."
+                tvStatus.text = "▶ Playing..."
+                FloatingService.updateButtons()
             }
         }.start()
     }
@@ -207,19 +200,21 @@ class TapMateActivity : AppCompatActivity() {
         val min = seekDelayMin.progress.toLong()
         val max = maxOf(seekDelayMax.progress.toLong(), min)
         TapAccessibilityService.delayRange = if (switchShuffleDelay.isChecked) Pair(min, max) else Pair(0L, 0L)
-        TapAccessibilityService.countdownSeconds = 3
     }
 
-    private fun updateRecordingList() {
-        val names = TapRecorder.recordings.map { "${it.name} (${it.events.size} taps)" }
-        recordingAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
-        recordingList.adapter = recordingAdapter
+    private fun refreshRecordingList() {
+        val names = TapRecorder.recordings.map { "📌 ${it.name}  •  ${it.events.size} taps" }
+        if (names.isEmpty()) {
+            recordingList.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1,
+                listOf("No recordings yet — tap Start Recording"))
+        } else {
+            recordingList.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, names)
+        }
     }
 
     private fun updateSpeedLabel() {
         val speed = 0.5f + (seekSpeed.progress * 0.05f)
         tvSpeed.text = "Speed: ${"%.1f".format(speed)}x"
-        TapAccessibilityService.speedMultiplier = speed
     }
 
     private fun updateLoopsLabel() {
@@ -227,15 +222,19 @@ class TapMateActivity : AppCompatActivity() {
     }
 
     private fun updateDelayLabel() {
-        val min = seekDelayMin.progress
-        val max = seekDelayMax.progress
-        tvDelay.text = "Delay: ${min}ms – ${max}ms per tap"
+        tvDelay.text = "Delay: ${seekDelayMin.progress}ms – ${seekDelayMax.progress}ms per tap"
+    }
+
+    private fun simpleSeekListener(onChange: () -> Unit) = object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) = onChange()
+        override fun onStartTrackingTouch(s: SeekBar?) {}
+        override fun onStopTrackingTouch(s: SeekBar?) {}
     }
 
     private fun promptAccessibility() {
         AlertDialog.Builder(this)
             .setTitle("Enable Accessibility")
-            .setMessage("TapMate needs Accessibility permission to replay taps.\n\nSettings → Accessibility → Installed apps → TapMate → Enable")
+            .setMessage("Settings → Accessibility → Installed apps → TapMate → Enable")
             .setPositiveButton("Open Settings") { _, _ ->
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             }
